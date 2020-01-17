@@ -1,0 +1,70 @@
+{
+   "json_format_version":[
+      1,
+      0
+   ],
+   "smartctl":{
+      "version":[
+         7,
+         0
+      ],
+      "svn_revision":"4883",
+      "platform_info":"x86_64-linux-5.3.13-arch1-1",
+      "build_info":"(local build)",
+      "argv":[
+         "smartctl",
+         "-j",
+         "-c",
+         "/dev/sda"
+      ],
+      "exit_status":0
+   },
+   "device":{
+      "name":"/dev/sda",
+      "info_name":"/dev/sda [SAT]",
+      "type":"sat",
+      "protocol":"ATA"
+   },
+   "ata_smart_data":{
+      "offline_data_collection":{
+         "status":{
+            "value":130,
+            "string":"was completed without error",
+            "passed":true
+         },
+         "completion_seconds":15556
+      },
+      "self_test":{
+         "status":{
+            "value":247,
+            "string":"in progress, 70% remaining",
+            "remaining_percent":70
+         },
+         "polling_minutes":{
+            "short":1,
+            "extended":29
+         }
+      },
+      "capabilities":{
+         "values":[
+            91,
+            3
+         ],
+         "exec_offline_immediate_supported":true,
+         "offline_is_aborted_upon_new_cmd":false,
+         "offline_surface_scan_supported":true,
+         "self_tests_supported":true,
+         "conveyance_self_test_supported":false,
+         "selective_self_test_supported":true,
+         "attribute_autosave_enabled":true,
+         "error_logging_supported":true,
+         "gp_logging_supported":false
+      }
+   },
+   "ata_sct_capabilities":{
+      "value":1,
+      "error_recovery_control_supported":false,
+      "feature_control_supported":false,
+      "data_table_supported":false
+   }
+}

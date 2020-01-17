@@ -1,0 +1,60 @@
+{
+    "json_format_version": [
+      1,
+      0
+    ],
+    "smartctl": {
+      "version": [
+        7,
+        0
+      ],
+      "svn_revision": "4883",
+      "platform_info": "x86_64-linux-5.3.13-arch1-1",
+      "build_info": "(local build)",
+      "argv": [
+        "smartctl",
+        "-j",
+        "-H",
+        "/dev/sdb"
+      ],
+      "exit_status": 24
+    },
+    "device": {
+      "name": "/dev/sdb",
+      "info_name": "/dev/sdb [SAT]",
+      "type": "sat",
+      "protocol": "ATA"
+    },
+    "smart_status": {
+      "passed": false
+    },
+    "ata_smart_attributes": {
+      "table": [
+        {
+          "id": 184,
+          "name": "End-to-End_Error",
+          "value": 62,
+          "worst": 62,
+          "thresh": 97,
+          "when_failed": "now",
+          "flags": {
+            "value": 51,
+            "string": "PO--CK ",
+            "prefailure": true,
+            "updated_online": true,
+            "performance": false,
+            "error_rate": false,
+            "event_count": true,
+            "auto_keep": true
+          },
+          "raw": {
+            "value": 2490368,
+            "string": "2490368"
+          }
+        }
+      ]
+    },
+    "temperature": {
+      "current": 23
+    }
+  }
