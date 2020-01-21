@@ -1,8 +1,16 @@
 import json
 import time
+import subprocess
 
+DEBUG_MODE = True
 
+def main():
+    cap = get_capabilities()
+    health = get_health()
+	attr = get_attributes()
 
+    smart = {**cap, **health}
+    print(smart)
 
 def get_capabilities():
     SECONDS_PER_MIN = 60
@@ -16,7 +24,7 @@ def get_capabilities():
 
     # run lsblk and collect output
     cap_str = ''
-    #cap_str = subprocess.check_output(['lsblk', '-OJb', path]).decode()
+    # cap_str = subprocess.check_output(['lsblk', '-OJb', path]).decode()
 
     # .  .  .or use sample output for testing
     with open('input-sample/smart_after_test_clean.json', 'r') as sample_file:
@@ -46,41 +54,28 @@ def get_capabilities():
     return cap
 
 
-	# def get_health():
-	# SMART_STATUS = 'smart_status'
-	# pass
+def get_health():
+    SMART_STATUS = 'smart_status'
+    PASSED = 'passed'
 
-	# def get_attributes():
-	# # these are the specific things like unallocated sector
-	# pass
+    # either get the real output, or use a sameple file
+    health_str = ''
+    if (DEBUG_MODE):
+        with open('input-sample/smart_health_dirty.json', 'r') as sample_file:  # /smart_health_dirty.json
+            health_str = sample_file.read()
+    else:
+        health_str = subprocess.check_output(
+            ['smartctl', '-jH', 'DEVPATH']).decode()
 
+    # parse json
+    health = json.loads(health_str)
 
-	# # # run lsblk and collect output
-	# # info_str = ''
-	# # #info_str = subprocess.check_output(['lsblk', '-OJb', path]).decode()
-
-
-	# # # run lsblk and collect output
-	# # health_str = ''
-	# # #info_str = subprocess.check_output(['lsblk', '-OJb', path]).decode()
-
-	# # # .  .  .or use sample output for testing
-	# # with open('input-sample/smart_health_clean.json', 'r') as sample_file:
-	# # 	health_str = sample_file.read()
+    return {'smart_health_passed': health[SMART_STATUS][PASSED]}
 
 
-	# # # result dictionary
-	# # # results[f'{POLLING_MINUTES}_{EXTENDED}'] =
-	# # # results[f'{OFFLINE_DATA_COLLECTION}_{PASSED}'] = ata[OFFLINE_DATA_COLLECTION][STATUS][PASSED]
-	# # # results[f'{SELF_TEST}_{PASSED}'] = [PASSED]
+def get_attributes():
+	
 
-
-	# # # print(info_json)
-	# # # print(ata)
-	# # print(results)
 
 if __name__ == '__main__':
-    cap = get_capabilities()
-    smart = {**cap}
-
-    print(smart)
+    main()
