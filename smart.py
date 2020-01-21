@@ -7,9 +7,9 @@ DEBUG_MODE = True
 def main():
     cap = get_capabilities()
     health = get_health()
-	attr = get_attributes()
+    attr = get_attributes()
 
-    smart = {**cap, **health}
+    smart = {**cap, **health, **attr}
     print(smart)
 
 def get_capabilities():
@@ -22,13 +22,14 @@ def get_capabilities():
     POLLING_MINUTES = 'polling_minutes'
     EXTENDED = 'extended'
 
-    # run lsblk and collect output
+    # either get the real output, or use a sample file
     cap_str = ''
-    # cap_str = subprocess.check_output(['lsblk', '-OJb', path]).decode()
-
-    # .  .  .or use sample output for testing
-    with open('input-sample/smart_after_test_clean.json', 'r') as sample_file:
-        cap_str = sample_file.read()
+    if (DEBUG_MODE):
+        with open('input-sample/smart_after_test_clean.json', 'r') as sample_file:  # /smart_during_test_clean.json /smart_before_test_clean.json
+            cap_str = sample_file.read()
+    else:
+        cap_str = subprocess.check_output(
+            ['smartctl', '-jc', 'DEVPATH']).decode()
 
     # parse output to dictionary
     info_json = json.loads(cap_str)
@@ -36,13 +37,15 @@ def get_capabilities():
 
     # determine how long the extended test should take to run
     polling_minutes = ata[SELF_TEST][POLLING_MINUTES][EXTENDED]
-    polling_seconds = polling_minutes * SECONDS_PER_MIN
+    #polling_seconds = polling_minutes * SECONDS_PER_MIN
 
     # wait for the extended self test to complete
     self_test_status = ata[SELF_TEST][STATUS]
+    elapsed = 0
     while (PASSED not in self_test_status):
-        time.sleep(1)  # TODO put polling seconds
-        print('sleeping. . .')
+        time.sleep(SECONDS_PER_MIN)
+        elapsed += SECONDS_PER_MIN
+        print(f'Waiting for DEV test to complete. {elapsed / 60}m of {polling_minutes}m')
 
     # collect results
     cap = {
@@ -58,7 +61,7 @@ def get_health():
     SMART_STATUS = 'smart_status'
     PASSED = 'passed'
 
-    # either get the real output, or use a sameple file
+    # either get the real output, or use a sample file
     health_str = ''
     if (DEBUG_MODE):
         with open('input-sample/smart_health_dirty.json', 'r') as sample_file:  # /smart_health_dirty.json
@@ -74,7 +77,25 @@ def get_health():
 
 
 def get_attributes():
-	
+    ATA_SMART_ATTRIBUTES = 'ata_smart_attributes'
+    TABLE = 'table'
+    # either get the real output, or use a sample file
+    attr_str = ''
+    if (DEBUG_MODE):
+        with open('input-sample/smart_attributes.json', 'r') as sample_file:
+            attr_str = sample_file.read()
+    else:
+        attr_str = subprocess.check_output(
+            ['smartctl', '-jH', 'DEVPATH']).decode()
+    
+    # parse json
+    attr = json.loads(attr_str)
+    attr_table = attr[ATA_SMART_ATTRIBUTES][TABLE]
+    print(attr_table)
+
+    #filtered_dict = {k:v for (k,v) in d.items() if filter_string in k}
+    return attr
+
 
 
 if __name__ == '__main__':
