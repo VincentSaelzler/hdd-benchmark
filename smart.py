@@ -55,7 +55,7 @@ def get_capabilities(dev_path):
     cap = {
         'polling_minutes': polling_minutes,
         'self_test_passed': self_test_status[PASSED],
-        'offline_collection_passed': ata[OFFLINE_DATA_COLLECTION][STATUS][PASSED],
+        #'offline_collection_passed': ata[OFFLINE_DATA_COLLECTION][STATUS][PASSED],
     }
 
     return cap

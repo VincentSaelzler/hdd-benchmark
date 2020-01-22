@@ -89,13 +89,13 @@ if __name__ == '__main__':
     devs = [Dev('sd' + dl, now_unix) for dl in dev_letters]
 
     # run serially to help with debugging
-    # for dev in devs:
-    #     process_dev(dev, lock, devs_file_path, badblocks_file_path, smart_file_path)
+    for dev in devs:
+        process_dev(dev, lock, devs_file_path, badblocks_file_path, smart_file_path)
 
     # run in parallel for speed
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(devs)) as executor:
-        for dev in devs:
-            logging.info(f'Before {dev.dev_name}')
-            executor.submit(process_dev, dev, lock,
-                            devs_file_path, badblocks_file_path, smart_file_path)
-            logging.info(f'After  {dev.dev_name}')
+    # with concurrent.futures.ThreadPoolExecutor(max_workers=len(devs)) as executor:
+    #     for dev in devs:
+    #         logging.info(f'Before {dev.dev_name}')
+    #         executor.submit(process_dev, dev, lock,
+    #                         devs_file_path, badblocks_file_path, smart_file_path)
+    #         logging.info(f'After  {dev.dev_name}')
