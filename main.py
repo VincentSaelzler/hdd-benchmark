@@ -32,7 +32,9 @@ def process_dev(dev, lock, devs_file_path, badblocks_file_path, smart_file_path)
     #     write_row(lock, badblocks_file_path, badblocks_row)
 
     smart_row = {'create_time': dev.create_time,
-                'time_stamp': get_time_stamp(), **dev.get_smart()}
+                'time_stamp': get_time_stamp(),
+                'serial': dev.serial,
+                **dev.get_smart()}
     write_row(lock, smart_file_path, smart_row)
 
 
