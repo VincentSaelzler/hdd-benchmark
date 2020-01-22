@@ -17,7 +17,7 @@ def get_all(dev_path):
 def get_capabilities(dev_path):
     SECONDS_PER_MIN = 60
     ATA_SMART_DATA = 'ata_smart_data'
-    OFFLINE_DATA_COLLECTION = 'offline_data_collection'
+    #OFFLINE_DATA_COLLECTION = 'offline_data_collection' #some SSD didn't have this.
     SELF_TEST = 'self_test'
     STATUS = 'status'
     PASSED = 'passed'
@@ -112,7 +112,10 @@ def get_attributes(dev_path):
 
     attr_has_errors = True if  attr_error_count != 0 else False
 
-    attr_return = {'attr_has_errors':attr_has_errors,'attr_error_count':attr_error_count, **attrs}
+    #originally was trying to return the actual attrs.
+    #turned out not to work very well because some SSDs don't have any of these attributes.
+    #ended up stumbling into the ideal strat! if there is an attr, count it. If not, doesn't matter.
+    attr_return = {'attr_has_errors':attr_has_errors,'attr_error_count':attr_error_count}
 
 
 
