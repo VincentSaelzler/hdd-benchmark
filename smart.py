@@ -4,15 +4,17 @@ import subprocess
 
 DEBUG_MODE = True
 
-def main():
-    cap = get_capabilities()
-    health = get_health()
-    attr = get_attributes()
+
+def get_all(dev_path):
+    cap = get_capabilities(dev_path)
+    health = get_health(dev_path)
+    attr = get_attributes(dev_path)
 
     smart = {**cap, **health, **attr}
-    print(smart)
+    return smart()
 
-def get_capabilities():
+
+def get_capabilities(dev_path):
     SECONDS_PER_MIN = 60
     ATA_SMART_DATA = 'ata_smart_data'
     OFFLINE_DATA_COLLECTION = 'offline_data_collection'
@@ -25,11 +27,12 @@ def get_capabilities():
     # either get the real output, or use a sample file
     cap_str = ''
     if (DEBUG_MODE):
-        with open('input-sample/smart_after_test_clean.json', 'r') as sample_file:  # /smart_during_test_clean.json /smart_before_test_clean.json
+        # /smart_during_test_clean.json /smart_before_test_clean.json
+        with open('input-sample/smart_after_test_clean.json', 'r') as sample_file:
             cap_str = sample_file.read()
     else:
         cap_str = subprocess.check_output(
-            ['smartctl', '-jc', 'DEVPATH']).decode()
+            ['smartctl', '-jc', dev_path]).decode()
 
     # parse output to dictionary
     info_json = json.loads(cap_str)
@@ -45,7 +48,8 @@ def get_capabilities():
     while (PASSED not in self_test_status):
         time.sleep(SECONDS_PER_MIN)
         elapsed += SECONDS_PER_MIN
-        print(f'Waiting for DEV test to complete. {elapsed / 60}m of {polling_minutes}m')
+        print(
+            f'Waiting for {dev_path} test to complete. {elapsed / 60}m of {polling_minutes}m')
 
     # collect results
     cap = {
@@ -57,7 +61,7 @@ def get_capabilities():
     return cap
 
 
-def get_health():
+def get_health(dev_path):
     SMART_STATUS = 'smart_status'
     PASSED = 'passed'
 
@@ -68,7 +72,7 @@ def get_health():
             health_str = sample_file.read()
     else:
         health_str = subprocess.check_output(
-            ['smartctl', '-jH', 'DEVPATH']).decode()
+            ['smartctl', '-jH', dev_path]).decode()
 
     # parse json
     health = json.loads(health_str)
@@ -76,9 +80,13 @@ def get_health():
     return {'smart_health_passed': health[SMART_STATUS][PASSED]}
 
 
-def get_attributes():
+def get_attributes(dev_path):
     ATA_SMART_ATTRIBUTES = 'ata_smart_attributes'
     TABLE = 'table'
+    NAME = 'name'
+    RAW = 'raw'
+    VALUE = 'value'
+
     # either get the real output, or use a sample file
     attr_str = ''
     if (DEBUG_MODE):
@@ -86,22 +94,26 @@ def get_attributes():
             attr_str = sample_file.read()
     else:
         attr_str = subprocess.check_output(
-            ['smartctl', '-jH', 'DEVPATH']).decode()
-    
+            ['smartctl', '-jA', dev_path]).decode()
+
     # parse json
     attr = json.loads(attr_str)
     attr_table = attr[ATA_SMART_ATTRIBUTES][TABLE]
-    #print(attr_table)
+    # print(attr_table)
 
-    IMPORTANT_ATTRIBUTES = ['name']
+    # https://www.ixsystems.com/community/resources/hard-drive-burn-in-testing.92/
+    IMPORTANT_ATTRIBUTES = ['Reallocated_Sector_Ct',
+                            'Current_Pending_Sector', 'Offline_Uncorrectable']
 
-    #filtered_dict = {k:v for (k,v) in d.items() if filter_string in k}
-    dicts = {d['name']:d['raw']['value'] for d in attr_table if d['name'] == 'Raw_Read_Error_Rate'}
-    print (dicts)
+    attrs = {d[NAME]: d[RAW][VALUE]
+             for d in attr_table if d[NAME] in IMPORTANT_ATTRIBUTES}
 
-    return {}
+    attr_error_count = sum(attrs.values())
+
+    attr_has_errors = True if  attr_error_count != 0 else False
+
+    attr_return = {'attr_has_errors':attr_has_errors,'attr_error_count':attr_error_count, **attrs}
 
 
 
-if __name__ == '__main__':
-    main()
+    return attr_return

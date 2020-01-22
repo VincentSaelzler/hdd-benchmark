@@ -1,5 +1,6 @@
 import badblocks
 import dev_info
+import smart
 
 
 class Dev:
@@ -22,3 +23,8 @@ class Dev:
         bad_blocks_row = badblocks.check_for_bad_blocks(log_file_path)
         self.bad_blocks.append(bad_blocks_row)
         return bad_blocks_row
+
+    def get_smart(self):
+        self.smart = smart.get_all(self.path)
+        return self.smart
+
