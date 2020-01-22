@@ -91,10 +91,15 @@ def get_attributes():
     # parse json
     attr = json.loads(attr_str)
     attr_table = attr[ATA_SMART_ATTRIBUTES][TABLE]
-    print(attr_table)
+    #print(attr_table)
+
+    IMPORTANT_ATTRIBUTES = ['name']
 
     #filtered_dict = {k:v for (k,v) in d.items() if filter_string in k}
-    return attr
+    dicts = {d['name']:d['raw']['value'] for d in attr_table if d['name'] == 'Raw_Read_Error_Rate'}
+    print (dicts)
+
+    return {}
 
 
 
