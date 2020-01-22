@@ -2,7 +2,7 @@ import json
 import time
 import subprocess
 
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 
 def get_all(dev_path):
@@ -11,7 +11,7 @@ def get_all(dev_path):
     attr = get_attributes(dev_path)
 
     smart = {**cap, **health, **attr}
-    return smart()
+    return smart
 
 
 def get_capabilities(dev_path):
