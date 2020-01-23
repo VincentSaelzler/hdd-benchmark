@@ -8,9 +8,9 @@ def run_badblocks(dev_path, log_file_path):
     # run badblocks
     before = int(time.time())
     if __debug__:
-        time.sleep(2)
-    else:
         subprocess.run(['badblocks', '-wsv', '-o', log_file_path, dev_path])
+    else:
+        time.sleep(2)
     after = int(time.time())
     elapsed = after - before
 
@@ -26,8 +26,6 @@ def run_badblocks(dev_path, log_file_path):
 
 def check_for_bad_blocks(log_file_path):
     if __debug__:
-        return {'HasBadBlocks': True, 'NumBadBlocks': 0}
-    else:
         # true/false for any bad blocks (normally false)
         bad_blocks = {'HasBadBlocks': True if os.path.getsize(
             log_file_path) > 0 else False}
@@ -38,3 +36,6 @@ def check_for_bad_blocks(log_file_path):
             bad_blocks['NumBadBlocks'] = len(log_file.readlines())
 
         return bad_blocks
+    else:
+        return {'HasBadBlocks': True, 'NumBadBlocks': 0}
+

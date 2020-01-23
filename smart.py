@@ -50,7 +50,7 @@ def get_capabilities(dev_path):
         else:
             break
 
-    # wait for the offline collection to complete
+    # wait for the offline collection to complete (unlikely but I'm not sure how this test works.)
     elapsed = 0
     while True:
         time.sleep(POLL_FREQ)
@@ -58,7 +58,7 @@ def get_capabilities(dev_path):
         offline_collection_status = ata[OFFLINE_DATA_COLLECTION][STATUS][STRING]
         if re.match('in progress', offline_collection_status):
             print(
-                f'Waiting for {dev_path} offline collection to complete. {elapsed / 60}m of estimated {polling_minutes}m')
+                f'Waiting for {dev_path} offline collection to complete. {elapsed / 60}m of unknown minutes.')
         else:
             break
 

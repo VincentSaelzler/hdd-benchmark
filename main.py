@@ -13,28 +13,28 @@ def get_time_stamp():
 
 
 def process_dev(dev, lock, devs_file_path, badblocks_file_path, smart_file_path):
-    #NUM_TRIALS = 2
+    NUM_TRIALS = 2
 
     dev_row = {'create_time': dev.create_time,
                'time_stamp': get_time_stamp(), **dev.info}
     write_row(lock, devs_file_path, dev_row)
 
-    # trials = range(NUM_TRIALS)
+    trials = range(NUM_TRIALS)
 
-    # for trial in trials:
-    #     log_file_path = f'./log/{dev.create_time}-{dev.dev_name}-{trial}.log'
-    #     badblocks_row = {'create_time': dev.create_time,
-    #                      'time_stamp': get_time_stamp(),
-    #                      'serial': dev.serial,
-    #                      'trial_num': trial,
-    #                      **dev.run_badblocks(log_file_path),
-    #                      **dev.check_for_bad_blocks(log_file_path)}
-    #     write_row(lock, badblocks_file_path, badblocks_row)
+    for trial in trials:
+        log_file_path = f'./log/{dev.create_time}-{dev.dev_name}-{trial}.log'
+        badblocks_row = {'create_time': dev.create_time,
+                         'time_stamp': get_time_stamp(),
+                         'serial': dev.serial,
+                         'trial_num': trial,
+                         **dev.run_badblocks(log_file_path),
+                         **dev.check_for_bad_blocks(log_file_path)}
+        write_row(lock, badblocks_file_path, badblocks_row)
 
     smart_row = {'create_time': dev.create_time,
-                'time_stamp': get_time_stamp(),
-                'serial': dev.serial,
-                **dev.get_smart()}
+                 'time_stamp': get_time_stamp(),
+                 'serial': dev.serial,
+                 **dev.get_smart()}
     write_row(lock, smart_file_path, smart_row)
 
 
@@ -90,14 +90,12 @@ if __name__ == '__main__':
     dev_letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     devs = [Dev('sd' + dl, now_unix) for dl in dev_letters]
 
-    # run serially to help with debugging
-    for dev in devs:
-        process_dev(dev, lock, devs_file_path, badblocks_file_path, smart_file_path)
-
-    # run in parallel for speed
-    # with concurrent.futures.ThreadPoolExecutor(max_workers=len(devs)) as executor:
-    #     for dev in devs:
-    #         logging.info(f'Before {dev.dev_name}')
-    #         executor.submit(process_dev, dev, lock,
-    #                         devs_file_path, badblocks_file_path, smart_file_path)
-    #         logging.info(f'After  {dev.dev_name}')
+    if __debug__:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(devs)) as executor:
+            for dev in devs:
+                executor.submit(process_dev, dev, lock,
+                                devs_file_path, badblocks_file_path, smart_file_path)
+    else:
+        for dev in devs:
+            process_dev(dev, lock, devs_file_path,
+                        badblocks_file_path, smart_file_path)
