@@ -87,7 +87,7 @@ if __name__ == '__main__':
                                      'form_factor': FORM_FACTOR})
 
     # devices
-    dev_letters = ['a', 'b', 'c', 'd', 'e'. 'f', 'g', 'h']
+    dev_letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     devs = [Dev('sd' + dl, now_unix) for dl in dev_letters]
 
     # run serially to help with debugging
