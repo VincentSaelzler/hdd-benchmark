@@ -1,6 +1,7 @@
 import json
 import time
 import subprocess
+import re
 
 
 def get_all(dev_path):
@@ -12,23 +13,23 @@ def get_all(dev_path):
 
 
 def get_capabilities(dev_path):
-    POLL_FREQ = 30
+    POLL_FREQ = 2
     ATA_SMART_DATA = 'ata_smart_data'
     OFFLINE_DATA_COLLECTION = 'offline_data_collection'
     SELF_TEST = 'self_test'
     STATUS = 'status'
-    PASSED = 'passed'
     POLLING_MINUTES = 'polling_minutes'
     EXTENDED = 'extended'
+    STRING = 'string'
 
+    # either get the real output, or use a sample file
     cap_str = ''
     if __debug__:
-        # /smart_during_test_clean.json /smart_before_test_clean.json
-        with open('input-sample/smart_after_test_clean.json', 'r') as sample_file:
-            cap_str = sample_file.read()
-    else:
         cap_str = subprocess.check_output(
             ['smartctl', '-jc', dev_path]).decode()
+    else:
+        with open('input-sample/smart_after_test_clean.json', 'r') as sample_file:
+            cap_str = sample_file.read()
 
     # parse output to dictionary
     info_json = json.loads(cap_str)
@@ -42,18 +43,30 @@ def get_capabilities(dev_path):
     while True:
         time.sleep(POLL_FREQ)
         elapsed += POLL_FREQ
-        self_test_status = ata[SELF_TEST][STATUS]
-        if self_test_status == PASSED:
-            break
-        else:
+        self_test_status = ata[SELF_TEST][STATUS][STRING]
+        if re.match('in progress', self_test_status):
             print(
-                f'Waiting for {dev_path} test to complete. {elapsed / 60}m of estimated {polling_minutes}m')
+                f'Waiting for {dev_path} extended test to complete. {elapsed / 60}m of estimated {polling_minutes}m')
+        else:
+            break
+
+    # wait for the offline collection to complete
+    elapsed = 0
+    while True:
+        time.sleep(POLL_FREQ)
+        elapsed += POLL_FREQ
+        offline_collection_status = ata[OFFLINE_DATA_COLLECTION][STATUS][STRING]
+        if re.match('in progress', offline_collection_status):
+            print(
+                f'Waiting for {dev_path} offline collection to complete. {elapsed / 60}m of estimated {polling_minutes}m')
+        else:
+            break
 
     # collect results
     cap = {
         'polling_minutes': polling_minutes,
-        'self_test_passed': self_test_status[PASSED],
-        'offline_collection_passed': ata[OFFLINE_DATA_COLLECTION][STATUS][PASSED],
+        'self_test_status': self_test_status,
+        'offline_collection_status': offline_collection_status,
     }
 
     return cap
@@ -66,11 +79,11 @@ def get_health(dev_path):
     # either get the real output, or use a sample file
     health_str = ''
     if __debug__:
-        with open('input-sample/smart_health_dirty.json', 'r') as sample_file:  # /smart_health_dirty.json
-            health_str = sample_file.read()
-    else:
         health_str = subprocess.check_output(
             ['smartctl', '-jH', dev_path]).decode()
+    else:
+        with open('input-sample/smart_health_dirty.json', 'r') as sample_file:  # /smart_health_dirty.json
+            health_str = sample_file.read()
 
     # parse json
     health = json.loads(health_str)
@@ -88,11 +101,11 @@ def get_attributes(dev_path):
     # either get the real output, or use a sample file
     attr_str = ''
     if __debug__:
-        with open('input-sample/smart_attributes.json', 'r') as sample_file:
-            attr_str = sample_file.read()
-    else:
         attr_str = subprocess.check_output(
             ['smartctl', '-jA', dev_path]).decode()
+    else:
+        with open('input-sample/smart_attributes.json', 'r') as sample_file:
+            attr_str = sample_file.read()
 
     # parse json
     attr = json.loads(attr_str)

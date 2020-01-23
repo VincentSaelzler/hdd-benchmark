@@ -7,13 +7,12 @@ def get_info(path):
     PARENT_KEY = 'blockdevices'
     DEV_INDEX = 0
 
-    # run lsblk and collect output
     info_str = ''
-    info_str = subprocess.check_output(['lsblk', '-OJb', path]).decode()
-
-    # .  .  .or use sample output for testing
-    # with open('input-sample/lsblk.json', 'r') as sample_file:
-    #	info_str = sample_file.read()
+    if __debug__:
+        info_str = subprocess.check_output(['lsblk', '-OJb', path]).decode()
+    else:
+        with open('input-sample/lsblk.json', 'r') as sample_file:
+            info_str = sample_file.read()
 
     # parse output to dictionary
     info_json = json.loads(info_str)
