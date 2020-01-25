@@ -45,12 +45,16 @@ def get_capabilities(dev_path):
         time.sleep(POLL_FREQ)
         elapsed += POLL_FREQ
         self_test_status = ata[SELF_TEST][STATUS][STRING]
+        print(f'before match: {dev_path} - "{self_test_status}"')
         if re.match('in progress', self_test_status):
+            print('in match')
             print(
                 f'Waiting for {dev_path} extended test to complete. {elapsed / 60}m of estimated {polling_minutes}m')
         else:
+            print('about to break')
             break
-
+        print('post break')
+        
     # wait for the offline collection to complete (unlikely but I'm not sure how this test works.)
     elapsed = 0
     while True:
