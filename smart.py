@@ -23,28 +23,33 @@ def get_capabilities(dev_path):
     EXTENDED = 'extended'
     STRING = 'string'
 
-    # either get the real output, or use a sample file
-    cap_str = ''
-    if util.is_prod():
-        cap_str = subprocess.check_output(
-            ['smartctl', '-jc', dev_path]).decode()
-    else:
-        with open('input-sample/smart_after_test_clean.json', 'r') as sample_file:
-            cap_str = sample_file.read()
+    #break this out because it needs to be refreshed each POLL_FREQ
+    def get_ata_cap(dev_path):
+        # either get the real output, or use a sample file
+        cap_str = ''
+        if util.is_prod():
+            cap_str = subprocess.check_output(
+                ['smartctl', '-jc', dev_path]).decode()
+        else:
+            with open('input-sample/smart_during_test_clean.json', 'r') as sample_file:
+                cap_str = sample_file.read()
 
-    # parse output to dictionary
-    info_json = json.loads(cap_str)
-    ata = info_json[ATA_SMART_DATA]
+        # parse output to dictionary
+        info_json = json.loads(cap_str)
+        ata = info_json[ATA_SMART_DATA]
+
+        return ata
 
     # determine how long the extended test should take to run
-    polling_minutes = ata[SELF_TEST][POLLING_MINUTES][EXTENDED]
+    polling_minutes = get_ata_cap(dev_path)[SELF_TEST][POLLING_MINUTES][EXTENDED]
 
     # wait for the extended self test to complete
     elapsed = 0
+    self_test_status = ''
     while True:
         time.sleep(POLL_FREQ)
         elapsed += POLL_FREQ
-        self_test_status = ata[SELF_TEST][STATUS][STRING]
+        self_test_status = get_ata_cap(dev_path)[SELF_TEST][STATUS][STRING]
         print(f'before match: {dev_path} - "{self_test_status}"')
         if re.match('in progress', self_test_status):
             print(f'in match: {dev_path}')
@@ -57,10 +62,11 @@ def get_capabilities(dev_path):
 
     # wait for the offline collection to complete (unlikely but I'm not sure how this test works.)
     elapsed = 0
+    offline_collection_status = ''
     while True:
         time.sleep(POLL_FREQ)
         elapsed += POLL_FREQ
-        offline_collection_status = ata[OFFLINE_DATA_COLLECTION][STATUS][STRING]
+        offline_collection_status = get_ata_cap(dev_path)[OFFLINE_DATA_COLLECTION][STATUS][STRING]
         if re.match('in progress', offline_collection_status):
             print(
                 f'Waiting for {dev_path} offline collection to complete. {elapsed / 60}m of unknown minutes.')

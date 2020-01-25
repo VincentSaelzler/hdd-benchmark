@@ -1,8 +1,8 @@
 def is_prod():
     # use this for real systems where you actually want to test (INCL WIPING) the disks
-    return True
+    # return True
     # use this when testing in dev environments.
-    # return False
+    return False
 
 
 def enable_run_badblocks():

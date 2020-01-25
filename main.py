@@ -65,11 +65,13 @@ def process_dev(dev, lock, devs_file_path, badblocks_file_path, smart_file_path)
     trials = range(NUM_TRIALS)
 
     # device
+    print(f'before dev {dev.dev_name}')
     dev_row = {'create_time': dev.create_time,
                'time_stamp': get_time_stamp(), **dev.info}
     write_row(lock, devs_file_path, dev_row)
 
     # SMART before
+    print(f'before smart FIRST {dev.dev_name}')
     smart_row_before = {'create_time': dev.create_time,
                         'time_stamp': get_time_stamp(),
                         'serial': dev.serial,
@@ -77,6 +79,7 @@ def process_dev(dev, lock, devs_file_path, badblocks_file_path, smart_file_path)
     write_row(lock, smart_file_path, smart_row_before)
 
     # badblocks (loop to repeat)
+    print(f'before badblocks {dev.dev_name}')
     if util.enable_run_badblocks():
         for trial in trials:
             log_file_path = f'./log/{dev.create_time}-{dev.dev_name}-{trial}.log'
@@ -88,9 +91,11 @@ def process_dev(dev, lock, devs_file_path, badblocks_file_path, smart_file_path)
             write_row(lock, badblocks_file_path, badblocks_row)
 
     # SMART tests (wait to complete before moving on)
+    print(f'before smart run test {dev.dev_name}')
     dev.run_smart_test()
 
     # SMART after
+    print(f'before smart SECOND {dev.dev_name}')
     smart_row_after = {'create_time': dev.create_time,
                        'time_stamp': get_time_stamp(),
                        'serial': dev.serial,
