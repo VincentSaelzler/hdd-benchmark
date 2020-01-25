@@ -2,6 +2,7 @@ import json
 import time
 import subprocess
 import re
+import util
 
 
 def get_all(dev_path):
@@ -13,7 +14,7 @@ def get_all(dev_path):
 
 
 def get_capabilities(dev_path):
-    POLL_FREQ = 2
+    POLL_FREQ = 60 if  util.is_prod() else 2
     ATA_SMART_DATA = 'ata_smart_data'
     OFFLINE_DATA_COLLECTION = 'offline_data_collection'
     SELF_TEST = 'self_test'
@@ -24,7 +25,7 @@ def get_capabilities(dev_path):
 
     # either get the real output, or use a sample file
     cap_str = ''
-    if __debug__:
+    if util.is_prod():
         cap_str = subprocess.check_output(
             ['smartctl', '-jc', dev_path]).decode()
     else:
@@ -78,7 +79,7 @@ def get_health(dev_path):
 
     # either get the real output, or use a sample file
     health_str = ''
-    if __debug__:
+    if util.is_prod():
         health_str = subprocess.check_output(
             ['smartctl', '-jH', dev_path]).decode()
     else:
@@ -100,7 +101,7 @@ def get_attributes(dev_path):
 
     # either get the real output, or use a sample file
     attr_str = ''
-    if __debug__:
+    if util.is_prod():
         attr_str = subprocess.check_output(
             ['smartctl', '-jA', dev_path]).decode()
     else:
@@ -130,3 +131,10 @@ def get_attributes(dev_path):
                    'attr_error_count': attr_error_count}
 
     return attr_return
+
+
+def run_test(dev_path):
+    if util.is_prod():
+        subprocess.run(['smartctl', '-t', 'long', dev_path])
+    else:
+        pass

@@ -1,13 +1,14 @@
 import os
 import subprocess
 import time
+import util
 
 
 def run_badblocks(dev_path, log_file_path):
 
     # run badblocks
     before = int(time.time())
-    if __debug__:
+    if util.is_prod():
         subprocess.run(['badblocks', '-wsv', '-o', log_file_path, dev_path])
     else:
         time.sleep(2)
@@ -25,7 +26,7 @@ def run_badblocks(dev_path, log_file_path):
 
 
 def check_for_bad_blocks(log_file_path):
-    if __debug__:
+    if util.is_prod():
         # true/false for any bad blocks (normally false)
         bad_blocks = {'HasBadBlocks': True if os.path.getsize(
             log_file_path) > 0 else False}

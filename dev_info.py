@@ -1,6 +1,6 @@
 import subprocess
 import json
-
+import util
 
 def get_info(path):
     # hard-coding based on the output format of lsblk
@@ -8,7 +8,7 @@ def get_info(path):
     DEV_INDEX = 0
 
     info_str = ''
-    if __debug__:
+    if util.is_prod():
         info_str = subprocess.check_output(['lsblk', '-OJb', path]).decode()
     else:
         with open('input-sample/lsblk.json', 'r') as sample_file:
