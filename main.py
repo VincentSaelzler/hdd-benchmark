@@ -77,19 +77,20 @@ def process_dev(dev, lock, devs_file_path, badblocks_file_path, smart_file_path)
     write_row(lock, smart_file_path, smart_row_before)
 
     # badblocks (loop to repeat)
-    for trial in trials:
-        log_file_path = f'./log/{dev.create_time}-{dev.dev_name}-{trial}.log'
-        badblocks_row = {'create_time': dev.create_time,
-                         'time_stamp': get_time_stamp(),
-                         'serial': dev.serial,
-                         'trial_num': trial,
-                         **dev.run_badblocks(log_file_path)}
-        write_row(lock, badblocks_file_path, badblocks_row)
+    if util.enable_run_badblocks():
+        for trial in trials:
+            log_file_path = f'./log/{dev.create_time}-{dev.dev_name}-{trial}.log'
+            badblocks_row = {'create_time': dev.create_time,
+                             'time_stamp': get_time_stamp(),
+                             'serial': dev.serial,
+                             'trial_num': trial,
+                             **dev.run_badblocks(log_file_path)}
+            write_row(lock, badblocks_file_path, badblocks_row)
 
-    #SMART tests (wait to complete before moving on)
+    # SMART tests (wait to complete before moving on)
     dev.run_smart_test()
 
-    #SMART after
+    # SMART after
     smart_row_after = {'create_time': dev.create_time,
                        'time_stamp': get_time_stamp(),
                        'serial': dev.serial,
