@@ -5,7 +5,7 @@ Set up a client computer (usually using a live CD - I use Arch).
 ### Client
 1.  Connect to network
 1.  Get to a command line prompt
-1.  Start ssh ``systemctl start openssh`
+1.  Start ssh `systemctl start openssh`
 1.  Set a PW `passwd`
 1.  Detemine IP `ip address`
 
