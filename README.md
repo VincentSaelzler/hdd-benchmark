@@ -13,6 +13,7 @@ Set up a client computer (usually using a live CD - I use Arch).
 1.  ssh into client `ssh root@[IP]`
 1.  install git on client `pacman --sync --refresh git`
 1.  clone this repo (use HTTPS) `git clone https://github.com/VincentSaelzler/hdd-benchmark.git`
+1.  start `screen` (so the program runs even if SSH session is disconnected) 
 
 ### Running
 #### Update Parameters
